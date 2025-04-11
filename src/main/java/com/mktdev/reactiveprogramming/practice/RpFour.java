@@ -1,7 +1,10 @@
 package com.mktdev.reactiveprogramming.practice;
 
+import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.SignalType;
+
+import java.time.Duration;
 
 public class RpFour {
     private Flux<Integer> fluxDoFunctions() {
@@ -25,20 +28,20 @@ public class RpFour {
     }
 
     private Flux<Integer> fluxDoFunctions3() {
-        Flux<Integer> flux1 = Flux.range(1, 20);
+        Flux<Integer> flux1 = Flux.range(1, 10).delayElements(Duration.ofSeconds(1));
 
-        return flux1.doOnComplete(
-                () -> System.out.println("I am done!")
-        );
+        return flux1.doOnSubscribe(
+                (subscription) -> System.out.println("I am subscribed!")
+        ).doOnCancel(() -> System.out.println("I am cancelled!"));
     }
-
 
     public static void main(String[] args) throws InterruptedException {
         RpFour rpFour = new RpFour();
 //        rpFour.fluxDoFunctions().subscribe(System.out::println);
 //        rpFour.fluxDoFunctions2().subscribe(System.out::println);
-        rpFour.fluxDoFunctions3().subscribe(System.out::println);
+        Disposable disposable = rpFour.fluxDoFunctions3().subscribe(System.out::println);
 
-        Thread.sleep(11000);
+        Thread.sleep(3400);
+        disposable.dispose();
     }
 }
